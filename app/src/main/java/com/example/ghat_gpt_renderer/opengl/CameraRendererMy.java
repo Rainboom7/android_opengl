@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -37,20 +38,48 @@ public class CameraRendererMy implements Renderer {
     // проекционная матрица
     private float[] mProjectionMatrix = new float[16];
     private ObjectRenderer virtualObject = new ObjectRenderer();
+    /**
+     * Size of the position data in elements.
+     */
+    private final int mPositionDataSize = 4;
+    private final int mBytesPerFloat = 4;
+
+    private final int mStrideBytes = 7 * mBytesPerFloat;
+
+    /**
+     * Offset of the color data.
+     */
+    private final int mColorOffset = 3;
+
+    /**
+     * Size of the color data in elements.
+     */
+    private final int mColorDataSize = 4;
+    private final int mPositionOffset = 0;
+
+    private float mCubeRotation =0.6f;
 
     // переменная матрицы трансформации
     private int mMVPMatrixHandle;
     // переменная для model position данных
     private int mPositionHandle;
 
+    private Cube mCube;
+
     private int mColorHandle;
 
-    /**
-     * How many bytes per float.
-     */
-    private final int mBytesPerFloat = 4;
+    private FloatBuffer vertexBuffer;  // Buffer for vertex-array
+    private ShortBuffer indexBuffer;
 
     private float x;
+
+    private final float[] mRotationMatrixX = new float[16];
+    private final float[] mRotationMatrixY = new float[16];
+    private final float[] mRotationMatrixZ = new float[16];
+
+    private final float[] mFinalMVPMatrix= new float[16];
+
+    private int programHandle;
 
     public CameraRendererMy(Context context) {
         // Define points for equilateral triangles.
@@ -60,14 +89,18 @@ public class CameraRendererMy implements Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
+
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         //включаем отсечение невидимых граней
         GLES20.glEnable(GLES20.GL_CULL_FACE);
+
         //включаем сглаживание текстур, это пригодится в будущем
         GLES20.glHint(
                 GLES20.GL_GENERATE_MIPMAP_HINT, GLES20.GL_NICEST);
 
-        glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        GLES20.glClearDepthf(1.0f);
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
         //координаты точечного источника света
         xLightPosition = 0.3f;
@@ -168,7 +201,7 @@ public class CameraRendererMy implements Renderer {
         }
 
         // Create a program object and store the handle to it.
-        int programHandle = GLES20.glCreateProgram();
+         programHandle = GLES20.glCreateProgram();
 
         if (programHandle != 0) {
             // Bind the vertex shader to the program.
@@ -208,6 +241,9 @@ public class CameraRendererMy implements Renderer {
         GLES20.glUseProgram(programHandle);
 
 
+        //Отрисовка моделей
+        mCube = new Cube();
+
         try {
             virtualObject.createOnGlThread(context, "models/andy.obj", "models/andy.png");
             virtualObject.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
@@ -232,6 +268,9 @@ public class CameraRendererMy implements Renderer {
         final float far = 10.0f;
 
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+
     }
 
     @Override
@@ -239,14 +278,32 @@ public class CameraRendererMy implements Renderer {
     public void onDrawFrame(GL10 glUnused) {
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
+
         if (x <= 1) {
             x = (float) (x + 0.001);
         } else {
             x = 0;
         }
 
+        Matrix.setRotateM(mRotationMatrixX, 0, mCubeRotation, 1.0f, 0, 0);
+        Matrix.setRotateM(mRotationMatrixY, 0, mCubeRotation, 0, 1.0f, 0);
+        Matrix.setRotateM(mRotationMatrixZ, 0, mCubeRotation, 0, 0, 1.0f);
+        float[] rotationMatrix = new float[16];
+        Matrix.multiplyMM(rotationMatrix, 0, mRotationMatrixX, 0, mRotationMatrixY, 0);
+        Matrix.multiplyMM(rotationMatrix, 0, rotationMatrix, 0, mRotationMatrixZ, 0);
+        float[] scaleMatrix = new float[16];
+        Matrix.setIdentityM(scaleMatrix, 0);
+        scaleMatrix[0] = 1;
+        scaleMatrix[5] = 1;
+        scaleMatrix[10] = 1;
+
+        // Combine the rotation matrix with the projection and camera view
+        Matrix.multiplyMM(mFinalMVPMatrix, 0, rotationMatrix, 0, scaleMatrix, 0);
+
         virtualObject.draw(mViewMatrix, mProjectionMatrix, new float[]{xLightPosition, yLightPosition, zLightPosition, 0.5f},
                 DEFAULT_COLOR);
+
+        mCube.draw(mFinalMVPMatrix);
     }
 
     public void applyRotation(float newX, float newY) {
@@ -270,6 +327,10 @@ public class CameraRendererMy implements Renderer {
         Matrix.multiplyMM(rotationMatrix, 0, rotationMatrix, 0, rotationMatrixZ, 0);
 
         virtualObject.updateModelMatrix(rotationMatrix, 1);
+
+        mCubeRotation += 0.6f;
+
     }
+
 
 }
