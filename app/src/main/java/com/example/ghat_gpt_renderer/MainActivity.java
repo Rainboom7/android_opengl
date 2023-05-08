@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
-import com.example.ghat_gpt_renderer.opengl.CustomSurfaceView;
+import com.example.ghat_gpt_renderer.opengl_3d_obj.CustomSurfaceView;
 
 public class MainActivity extends AppCompatActivity {
     // Define rotation angles in degrees
