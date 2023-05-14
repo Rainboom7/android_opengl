@@ -26,6 +26,8 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
 
+import com.example.ghat_gpt_renderer.light_texture.Texture;
+
 public class Shader {
     //будем хранить ссылку на шейдерную программу
 //внутри класса как локальное поле
@@ -142,7 +144,27 @@ public class Shader {
     public void useProgram(){
         GLES20.glUseProgram(program_Handle);
     }
-// конец класса
+
+
+    public void linkTexture(Texture texture0){
+        // texture0, texture1 - текстурные объекты
+        //устанавливаем текущую активную программу
+        GLES20.glUseProgram(program_Handle);
+        if (texture0 != null){
+            //получаем ссылку на униформу u_texture0
+            int u_texture0_Handle =
+                    GLES20.glGetUniformLocation(program_Handle, "u_texture0");
+            //выбираем текущий текстурный блок GL_TEXTURE0
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+            //в текстурном блоке GL_TEXTURE0
+            //делаем активной текстуру с именем texture0.getName()
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture0.getName());
+            //выполняем связь между объектом  texture0 и униформой u_texture0
+            //в нулевом текстурном блоке
+            GLES20.glUniform1i(u_texture0_Handle, 0);
+        }
+
+    }//конец метода
 }
 
 

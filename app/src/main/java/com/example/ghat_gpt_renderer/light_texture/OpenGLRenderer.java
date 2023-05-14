@@ -1,5 +1,4 @@
 package com.example.ghat_gpt_renderer.light_texture;
-
 import android.opengl.GLSurfaceView;
 
 import android.content.Context;
@@ -187,31 +186,31 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer
         //записываем код вершинного шейдера в виде строки
         String vertexShaderCode=
                 "uniform mat4 u_modelViewProjectionMatrix;\n" +
-                "attribute vec3 a_vertex;\n" +
-                "attribute vec3 a_normal;\n" +
-                "attribute vec4 a_color;\n" +
-                "varying vec3 v_vertex;\n" +
-                "varying vec3 v_normal;\n" +
-                "varying vec4 v_color;\n" +
-                "// определяем переменные для передачи \n" +
-                "// координат двух текстур на интерполяцию\n" +
-                "varying vec2 v_texcoord0;\n" +
-                "varying vec2 v_texcoord1;\n" +
-                "void main() {\n" +
-                "        v_vertex=a_vertex;\n" +
-                "        vec3 n_normal=normalize(a_normal);\n" +
-                "        v_normal=n_normal;\n" +
-                "        v_color=a_color;\n" +
-                "        //вычисляем координаты первой текстуры и отравляем их на интерполяцию\n" +
-                "        //пусть координата текстуры S будет равна координате вершины X\n" +
-                "        v_texcoord0.s=a_vertex.x;\n" +
-                "        //а координата текстуры T будет равна координате вершины Z\n" +
-                "        v_texcoord0.t=a_vertex.z;\n" +
-                "        gl_Position = u_modelViewProjectionMatrix * vec4(a_vertex,1.0);"+
-                "}";
+                        "attribute vec3 a_vertex;\n" +
+                        "attribute vec3 a_normal;\n" +
+                        "attribute vec4 a_color;\n" +
+                        "varying vec3 v_vertex;\n" +
+                        "varying vec3 v_normal;\n" +
+                        "varying vec4 v_color;\n" +
+                        "// определяем переменные для передачи \n" +
+                        "// координат двух текстур на интерполяцию\n" +
+                        "varying vec2 v_texcoord0;\n" +
+                        "varying vec2 v_texcoord1;\n" +
+                        "void main() {\n" +
+                        "        v_vertex=a_vertex;\n" +
+                        "        vec3 n_normal=normalize(a_normal);\n" +
+                        "        v_normal=n_normal;\n" +
+                        "        v_color=a_color;\n" +
+                        "        //вычисляем координаты первой текстуры и отравляем их на интерполяцию\n" +
+                        "        //пусть координата текстуры S будет равна координате вершины X\n" +
+                        "        v_texcoord0.s=a_vertex.x;\n" +
+                        "        //а координата текстуры T будет равна координате вершины Z\n" +
+                        "        v_texcoord0.t=a_vertex.z;\n" +
+                        "        gl_Position = u_modelViewProjectionMatrix * vec4(a_vertex,1.0);"+
+                        "}";
         //записываем код фрагментного шейдера в виде строки
         String fragmentShaderCode=
-                        "precision mediump float;\n" +
+                "precision mediump float;\n" +
                         "uniform vec3 u_camera;\n" +
                         "uniform vec3 u_lightPosition;\n" +
                         "uniform sampler2D u_texture0;\n" +
@@ -233,22 +232,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer
                         "       vec3 reflectvector = reflect(-lightvector, n_normal);\n" +
                         "       float specular = k_specular * pow( max(dot(lookvector,reflectvector),0.0), 40.0 );\n" +
                         "      vec4 one=vec4(1.0,1.0,1.0,1.0);\n" +
-                      /*  "      //оставим пока квадрат временно без освещения и наложем текстуру\n" +
-                        "      //вычисляем цвет пикселя для первой текстуры\n" +
-                        " vec4 textureColor0=texture2D(u_texture0, v_texcoord0);\n" +
-                        "      //и присвоим его системной переменной gl_FragColor\n" +
-                        "      gl_FragColor =textureColor0;"+"}";*/
-                      /*  "      //оставим пока квадрат временно без освещения и наложем 2 текстуры\n" +
-                " //вычисляем координаты первой текстуры\n" +
-                        "      float r = v_vertex.x * v_vertex.x + v_vertex.z * v_vertex.z;\n" +
-                        "      vec2 texcoord0 = 0.3 * r * v_vertex.xz;\n" +
-                        "      //вычисляем цвет пикселя для первой текстуры\n" +
-                        "      vec4 textureColor0=texture2D(u_texture0, texcoord0);\n" +
-                        "      //и присвоим его системной переменной gl_FragColor\n" +
-                        "      gl_FragColor =textureColor0;"+"}";
-                        */
                         "      //оставим пока квадрат временно без освещения и выполним смешивание текстуры\n" +
-                      " //вычисляем координаты первой текстуры\n" +
+                        " //вычисляем координаты первой текстуры\n" +
                         "      float r = v_vertex.x * v_vertex.x + v_vertex.z * v_vertex.z;\n" +
                         "      vec2 texcoord0 = 0.3 * r * v_vertex.xz;\n" +
                         "      //вычисляем цвет пикселя для первой текстуры\n" +
@@ -269,8 +254,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer
 
 
         //создаем текстурные объекты из картинок
-        mTexture0=new Texture(context, R.drawable.picture0);
-        mTexture1=new Texture(context,R.drawable.picture1);
+        mTexture0=new Texture(context,R.drawable.grass);
+        mTexture1=new Texture(context, R.drawable.grass);
 
         //создадим шейдерный объект
         mShader=new Shader(vertexShaderCode, fragmentShaderCode);

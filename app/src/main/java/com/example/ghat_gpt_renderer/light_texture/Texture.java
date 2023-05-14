@@ -23,16 +23,19 @@ public class Texture {
         name = names[0];
         //теперь мы можем обращаться к текстуре по ее имени name
         //устанавливаем режим выравнивания по байту
-        GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
+       // GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
         //делаем текстуру с именем name текущей
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, name);
         //устанавливаем фильтры текстуры
+
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_LINEAR_MIPMAP_LINEAR);
+                GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_MAG_FILTER,
                 GLES20.GL_LINEAR);
+
+
         //устанавливаем режим повтора изображения
         //если координаты текстуры вышли за пределы от 0 до 1
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D,
