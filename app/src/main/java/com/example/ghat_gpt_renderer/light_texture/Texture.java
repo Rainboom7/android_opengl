@@ -1,4 +1,9 @@
 package com.example.ghat_gpt_renderer.light_texture;
+import static android.opengl.GLES20.GL_TEXTURE0;
+import static android.opengl.GLES20.GL_TEXTURE_2D;
+import static android.opengl.GLES20.glActiveTexture;
+import static android.opengl.GLES20.glBindTexture;
+
 import java.nio.FloatBuffer;
 import android.opengl.GLES20;
 import android.content.Context;
@@ -25,8 +30,22 @@ public class Texture {
         //устанавливаем режим выравнивания по байту
        // GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
         //делаем текстуру с именем name текущей
+
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+
+        Bitmap bitmap =
+                BitmapFactory.decodeResource(context.getResources(), idpicture,options);
+
+
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, name);
-        //устанавливаем фильтры текстуры
+        //устанавливаем фильтр        glActiveTexture(GL_TEXTURE0);ы текстуры
+        glActiveTexture(GL_TEXTURE0);
+
+
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glEnable(GLES20.GL_BLEND);
 
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_MIN_FILTER,
@@ -36,21 +55,13 @@ public class Texture {
                 GLES20.GL_LINEAR);
 
 
-        //устанавливаем режим повтора изображения
-        //если координаты текстуры вышли за пределы от 0 до 1
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_WRAP_S,
-                GLES20.GL_REPEAT);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_WRAP_T,
-                GLES20.GL_REPEAT);
-        // загружаем картинку в Bitmap из ресурса
-        Bitmap bitmap =
-                BitmapFactory.decodeResource(context.getResources(), idpicture);
+
         //переписываем Bitmap в память видеокарты
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
         // удаляем Bitmap из памяти, т.к. картинка уже переписана в видеопамять
         bitmap.recycle();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
         // Важный момент !
         // Создавать мипмапы нужно только
         // после загрузки текстуры в видеопамять

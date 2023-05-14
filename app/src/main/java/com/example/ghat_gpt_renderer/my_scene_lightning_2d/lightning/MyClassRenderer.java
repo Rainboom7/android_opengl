@@ -54,6 +54,7 @@ public class MyClassRenderer implements GLSurfaceView.Renderer {
     private Shader mShader1;
     private Texture texture;
     private Texture texture1;
+
     //конструктор
     public MyClassRenderer(Context context) {
         // запомним контекст
@@ -139,9 +140,9 @@ public class MyClassRenderer implements GLSurfaceView.Renderer {
         vertexBuffer4.position(0);
         //вектор нормали перпендикулярен плоскости квадрата
         //и направлен вдоль оси Z
-        float nx=0;
-        float ny=0;
-        float nz=1;
+        float nx = 0;
+        float ny = 0;
+        float nz = 1;
         //нормаль одинакова для всех вершин квадрата,
         //поэтому переписываем координаты вектора нормали в массив 4 раза
         float normalArray[] = {nx, ny, nz, nx, ny, nz, nx, ny, nz, nx, ny, nz};
@@ -309,7 +310,7 @@ public class MyClassRenderer implements GLSurfaceView.Renderer {
                         "        v_texcoord0.s=a_vertex.x;\n" +
                         "        //а координата текстуры T будет равна координате вершины Z\n" +
                         "        v_texcoord0.t=a_vertex.z;\n" +
-                        "        gl_Position = u_modelViewProjectionMatrix * vec4(a_vertex,1.0);"+
+                        "        gl_Position = u_modelViewProjectionMatrix * vec4(a_vertex,1.0);" +
                         "}";
         //записываем код фрагментного шейдера в виде строки
         String fragmentShaderCode2 = "" +
@@ -352,11 +353,11 @@ public class MyClassRenderer implements GLSurfaceView.Renderer {
                 "\n" +
                 "      //умножим цвета первой и второй текстур\n" +
                 "      //gl_FragColor =textureColor0*textureColor1;\n" +
-                "gl_FragColor=2.0*(ambient+diffuse)*mix(textureColor0,textureColor1,0.5)+specular*one;"+
+                "gl_FragColor=2.0*(ambient+diffuse)*mix(textureColor0,textureColor1,0.5)+specular*one;" +
                 "}";
 
         //создадим шейдерный объект
-        texture=new Texture(context,R.drawable.grass);
+        texture = new Texture(context, R.drawable.grass);
 
         mShader = new com.example.ghat_gpt_renderer.light_texture.Shader(vertexShaderCode1, fragmentShaderCode2);
         //свяжем буфер вершин с атрибутом a_vertex в вершинном шейдере
@@ -365,7 +366,7 @@ public class MyClassRenderer implements GLSurfaceView.Renderer {
         mShader.linkNormalBuffer(normalBuffer);
         //свяжем буфер цветов с атрибутом a_color в вершинном шейдере
         mShader.linkColorBuffer(colorBuffer);
-        mShader.linkTexture(texture,null);
+        mShader.linkTexture(texture, null);
         //связь атрибутов с буферами сохраняется до тех пор,
         //пока не будет уничтожен шейдерный объект
 
@@ -379,25 +380,25 @@ public class MyClassRenderer implements GLSurfaceView.Renderer {
 
     //метод, в котором выполняется рисование кадра
     public void onDrawFrame(GL10 unused) {
-      drawFrame();
+        drawFrame();
     }
 
     private void drawFrame() {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        mShader1.linkVertexBuffer(vertexBuffer);
-        mShader1.linkColorBuffer(colorBuffer);
         //передаем в шейдерный объект матрицу модели-вида-проекции
+        mShader.linkVertexBuffer(vertexBuffer);
+       // mShader.linkColorBuffer(colorBuffer);
         mShader.linkModelViewProjectionMatrix(modelViewProjectionMatrix);
         mShader.linkCamera(xCamera, yCamera, zCamera);
         mShader.linkLightSource(xLightPosition, yLightPosition, zLightPosition);
-        mShader.linkTexture(texture,null);
+        mShader.linkTexture(texture, null);
         mShader.useProgram();
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
-       mShader1.linkVertexBuffer(vertexBuffer1);
+        mShader1.linkVertexBuffer(vertexBuffer1);
         mShader1.linkColorBuffer(colorBuffer1);
-       mShader1.linkModelViewProjectionMatrix(modelViewProjectionMatrix);
+        mShader1.linkModelViewProjectionMatrix(modelViewProjectionMatrix);
         mShader1.linkCamera(xCamera, yCamera, zCamera);
         mShader1.linkLightSource(xLightPosition, yLightPosition, zLightPosition);
         mShader1.useProgram();
